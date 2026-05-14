@@ -1,5 +1,6 @@
 import { appAssets } from '@/assets';
 import { AppInput, AppScreen, AppText, PrimaryButton } from '@/components/ui';
+import { authRoutes } from '@/configs';
 import { appTexts } from '@/constants';
 import { appColors } from '@/theme';
 import { AuthStackParamList } from '@/types/navigation.types';
@@ -8,7 +9,11 @@ import { StyleSheet, View } from 'react-native';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'LogIn'>;
 
-export const LoginScreen = ({}: Props) => {
+export const LoginScreen = ({ navigation }: Props) => {
+  const navigateToSignUp = () => {
+    navigation.navigate(authRoutes.SIGN_UP);
+  };
+
   return (
     <AppScreen>
       <View style={styles.container}>
@@ -51,7 +56,9 @@ export const LoginScreen = ({}: Props) => {
       </View>
       <AppText style={[styles.subTitle, styles.createAccountLine]}>
         {appTexts.DONT_HAVE_ACCOUNT}{' '}
-        <AppText style={styles.forgotPassword}>{appTexts.SIGN_UP}</AppText>
+        <AppText style={styles.forgotPassword} onPress={navigateToSignUp}>
+          {appTexts.SIGN_UP}
+        </AppText>
       </AppText>
     </AppScreen>
   );

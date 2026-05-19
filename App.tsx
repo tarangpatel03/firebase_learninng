@@ -1,16 +1,34 @@
+import { setToastBottomInset, toastConfig } from '@/lib/toast';
 import { RootNavigation } from '@/navigation';
 import { NavigationContainer } from '@react-navigation/native';
+import { useEffect } from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
+  const ToastInsetSync = () => {
+    const insets = useSafeAreaInsets();
+
+    useEffect(() => {
+      setToastBottomInset(insets.bottom);
+    }, [insets.bottom]);
+
+    return null;
+  };
+
   return (
     <SafeAreaProvider>
+      <ToastInsetSync />
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <NavigationContainer>
         <RootNavigation />
+        <Toast config={toastConfig} />
       </NavigationContainer>
     </SafeAreaProvider>
   );

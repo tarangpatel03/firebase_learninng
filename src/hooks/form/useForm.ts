@@ -47,12 +47,15 @@ export const useForm = (initialFields: Record<string, FieldConfig>) => {
 
   const validateAll = () => {
     let newErrors: Record<string, string | null> = {};
+    let newTouched: Record<string, boolean> = {};
 
     Object.keys(values).forEach(name => {
       newErrors[name] = validateField(name, values[name]);
+      newTouched[name] = true;
     });
 
     setErrors(newErrors);
+    setTouched(newTouched);
 
     return Object.values(newErrors).every(e => !e);
   };
@@ -63,6 +66,11 @@ export const useForm = (initialFields: Record<string, FieldConfig>) => {
     }
   };
 
+  const resetForm = () => {
+    setErrors({});
+    setTouched({});
+  };
+
   return {
     values,
     errors,
@@ -70,5 +78,6 @@ export const useForm = (initialFields: Record<string, FieldConfig>) => {
     setFieldValue,
     setFieldTouched,
     handleSubmit,
+    resetForm,
   };
 };

@@ -1,21 +1,70 @@
 import { appAssets } from '@/assets';
-import { AppInput, AppScreen, AppText, PrimaryButton } from '@/components/ui';
+import {
+  AppInput,
+  AppScreen,
+  AppText,
+  GlobalLoader,
+  PrimaryButton,
+} from '@/components/ui';
 import { authRoutes } from '@/configs';
 import { appTexts } from '@/constants';
+import { useAuth, useField, useForm } from '@/hooks';
+import { showSuccessToast } from '@/lib/toast';
 import { appColors } from '@/theme';
 import { AuthStackParamList } from '@/types/navigation.types';
+import { email, minLength, required } from '@/utils';
+import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'LogIn'>;
 
 export const LoginScreen = ({ navigation }: Props) => {
+  const { isLoading, signInWithEmail } = useAuth();
+
+  const form = useForm({
+    email: {
+      value: '',
+      validators: [required('Email Required'), email()],
+    },
+    password: {
+      value: '',
+      validators: [required('Password Required'), minLength(6)],
+    },
+  });
+  const emailField = useField(form, 'email');
+  const passwordField = useField(form, 'password');
+
+  const logIn = () => {
+    form.handleSubmit(async values => {
+      try {
+        const res = await signInWithEmail(values.email, values.password);
+        if (res) {
+          showSuccessToast('Logged in successfully');
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        form.resetForm();
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
+
   const navigateToSignUp = () => {
     navigation.navigate(authRoutes.SIGN_UP);
   };
 
   return (
     <AppScreen>
+      {isLoading && <GlobalLoader />}
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <AppText style={styles.title}>{appTexts.LOG_IN_TITLE}</AppText>
@@ -23,8 +72,21 @@ export const LoginScreen = ({ navigation }: Props) => {
         </View>
         <View style={styles.formContainer}>
           <View style={styles.inputContainers}>
-            <AppInput label="Email" />
-            <AppInput label="Password" isPassword />
+            <AppInput
+              label="Email"
+              value={emailField.value}
+              onChangeText={emailField.onChangeText}
+              onBlur={emailField.onBlur}
+              error={emailField.error}
+            />
+            <AppInput
+              label="Password"
+              isPassword
+              value={passwordField.value}
+              onChangeText={passwordField.onChangeText}
+              onBlur={passwordField.onBlur}
+              error={passwordField.error}
+            />
             <AppText style={styles.forgotPassword}>
               {appTexts.FORGOT_PASSWORD}
             </AppText>
@@ -32,6 +94,7 @@ export const LoginScreen = ({ navigation }: Props) => {
           <PrimaryButton
             buttonText={appTexts.LOG_IN}
             containerStyle={styles.button}
+            onPress={logIn}
           />
           <View style={styles.inputContainers}>
             <View style={styles.orLine}>

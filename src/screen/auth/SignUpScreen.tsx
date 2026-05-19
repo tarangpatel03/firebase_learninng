@@ -1,18 +1,77 @@
 import { appAssets } from '@/assets';
-import { AppInput, AppScreen, AppText, PrimaryButton } from '@/components/ui';
+import {
+  AppInput,
+  AppScreen,
+  AppText,
+  GlobalLoader,
+  PrimaryButton,
+} from '@/components/ui';
 import { appTexts } from '@/constants';
 import { appColors } from '@/theme';
 import FastImage from '@d11/react-native-fast-image';
 import { AuthStackParamList } from '@/types/navigation.types';
+import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useCallback } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useAuth, useField, useForm } from '@/hooks';
+import { email, minLength, required } from '@/utils';
+import { showSuccessToast } from '@/lib/toast';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
 
-export const SignUpScreen = ({}: Props) => {
+export const SignUpScreen = ({ navigation }: Props) => {
+  const { isLoading, signUpWithEmail } = useAuth();
+
+  const form = useForm({
+    name: {
+      value: '',
+      validators: [required('Enter Name')],
+    },
+    email: {
+      value: '',
+      validators: [required('Email Required'), email()],
+    },
+    password: {
+      value: '',
+      validators: [required('Password Required'), minLength(6)],
+    },
+  });
+  const nameField = useField(form, 'name');
+  const emailField = useField(form, 'email');
+  const passwordField = useField(form, 'password');
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        form.resetForm();
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
+
+  const navigateBack = () => {
+    navigation.goBack();
+  };
+
+  const signUp = () => {
+    form.handleSubmit(async values => {
+      try {
+        const res = await signUpWithEmail(values.email, values.password);
+        if (res) {
+          showSuccessToast('Account created successfully');
+          navigateBack();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  };
+
   return (
     <AppScreen>
-      <Pressable style={styles.backButton}>
+      {isLoading && <GlobalLoader />}
+      <Pressable style={styles.backButton} onPress={navigateBack}>
         <FastImage
           source={appAssets.icons.ic_back_arrow}
           style={styles.backIcon}
@@ -26,11 +85,31 @@ export const SignUpScreen = ({}: Props) => {
         </View>
         <View style={styles.formContainer}>
           <View style={styles.inputContainers}>
-            <AppInput label="Full Name" />
-            <AppInput label="Email" />
-            <AppInput label="Password" isPassword />
+            <AppInput
+              label="Full Name"
+              value={nameField.value}
+              onChangeText={nameField.onChangeText}
+              onBlur={nameField.onBlur}
+              error={nameField.error}
+            />
+            <AppInput
+              label="Email"
+              value={emailField.value}
+              onChangeText={emailField.onChangeText}
+              onBlur={emailField.onBlur}
+              error={emailField.error}
+            />
+            <AppInput
+              label="Password"
+              isPassword
+              value={passwordField.value}
+              onChangeText={passwordField.onChangeText}
+              onBlur={passwordField.onBlur}
+              error={passwordField.error}
+            />
           </View>
           <PrimaryButton
+            onPress={signUp}
             buttonText={appTexts.REGISTER}
             containerStyle={styles.button}
           />
@@ -57,7 +136,9 @@ export const SignUpScreen = ({}: Props) => {
       </View>
       <AppText style={[styles.subTitle, styles.createAccountLine]}>
         {appTexts.ALREADY_HAVE_ACCOUNT}{' '}
-        <AppText style={styles.forgotPassword}>{appTexts.LOG_IN}</AppText>
+        <AppText style={styles.forgotPassword} onPress={navigateBack}>
+          {appTexts.LOG_IN}
+        </AppText>
       </AppText>
     </AppScreen>
   );

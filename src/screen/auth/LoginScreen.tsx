@@ -5,11 +5,13 @@ import {
   AppText,
   GlobalLoader,
   PrimaryButton,
-} from '@/components/ui';
-import { authRoutes } from '@/configs';
+} from '@/components';
+import { appRoutes, authRoutes } from '@/configs';
 import { appTexts } from '@/constants';
 import { useAuth, useField, useForm } from '@/hooks';
 import { showSuccessToast } from '@/lib/toast';
+import { navigate } from '@/navigation';
+import { useUserStore } from '@/store/useUserStore';
 import { appColors } from '@/theme';
 import { AuthStackParamList } from '@/types/navigation.types';
 import { email, minLength, required } from '@/utils';
@@ -22,15 +24,20 @@ type Props = NativeStackScreenProps<AuthStackParamList, 'LogIn'>;
 
 export const LoginScreen = ({ navigation }: Props) => {
   const { isLoading, signInWithEmail } = useAuth();
+  const setUid = useUserStore(state => state.setUid);
+
+  const navigateToHome = () => {
+    navigate({ name: appRoutes.HOME, params: undefined });
+  };
 
   const form = useForm({
     email: {
       value: '',
-      validators: [required('Email Required'), email()],
+      validators: [required(appTexts.EMAIL_REQUIRED), email()],
     },
     password: {
       value: '',
-      validators: [required('Password Required'), minLength(6)],
+      validators: [required(appTexts.PASSWORD_REQUIRED), minLength(6)],
     },
   });
   const emailField = useField(form, 'email');
@@ -40,8 +47,10 @@ export const LoginScreen = ({ navigation }: Props) => {
     form.handleSubmit(async values => {
       try {
         const res = await signInWithEmail(values.email, values.password);
-        if (res) {
-          showSuccessToast('Logged in successfully');
+        if (res?.uid) {
+          setUid(res.uid);
+          navigateToHome();
+          showSuccessToast(appTexts.LOG_IN_SUCCESS);
         }
       } catch (error) {
         console.log(error);
@@ -74,6 +83,7 @@ export const LoginScreen = ({ navigation }: Props) => {
           <View style={styles.inputContainers}>
             <AppInput
               label="Email"
+              autoCapitalize="none"
               value={emailField.value}
               onChangeText={emailField.onChangeText}
               onBlur={emailField.onBlur}
@@ -82,6 +92,7 @@ export const LoginScreen = ({ navigation }: Props) => {
             <AppInput
               label="Password"
               isPassword
+              autoCapitalize="none"
               value={passwordField.value}
               onChangeText={passwordField.onChangeText}
               onBlur={passwordField.onBlur}
@@ -149,7 +160,7 @@ const styles = StyleSheet.create({
   },
   forgotPassword: {
     fontSize: 12,
-    color: '#4D81E7',
+    color: appColors.app_4D81E7,
     alignSelf: 'flex-end',
     fontWeight: 'semibold',
   },

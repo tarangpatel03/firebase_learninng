@@ -7,4 +7,5 @@ export type AuthStackParamList = {
 
 export type RootStackParamList = {
   [appRoutes.AUTH_STACK]: undefined;
+  [appRoutes.HOME]: undefined;
 };

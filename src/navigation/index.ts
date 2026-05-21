@@ -1,1 +1,1 @@
-export { RootNavigation } from './RootNavigation';
+export { RootNavigation, navigate, navigationRef } from './RootNavigation';

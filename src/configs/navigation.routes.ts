@@ -5,4 +5,5 @@ export const authRoutes = {
 
 export const appRoutes = {
   AUTH_STACK: 'AuthStack',
+  HOME: 'Home',
 } as const;

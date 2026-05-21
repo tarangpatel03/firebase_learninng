@@ -5,6 +5,8 @@ export const appColors = {
   primaryText: '#1A1C1E',
   separator: '#C6C9CB',
   app_6C7278: '#6C7278',
+  app_DC2828: '#DC2828',
+  app_4D81E7: '#4D81E7',
   input: {
     text: '#000000',
     placeholder: '#8E8E93',

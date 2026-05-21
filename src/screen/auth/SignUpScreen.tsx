@@ -5,7 +5,7 @@ import {
   AppText,
   GlobalLoader,
   PrimaryButton,
-} from '@/components/ui';
+} from '@/components';
 import { appTexts } from '@/constants';
 import { appColors } from '@/theme';
 import FastImage from '@d11/react-native-fast-image';
@@ -16,7 +16,6 @@ import { useCallback } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useAuth, useField, useForm } from '@/hooks';
 import { email, minLength, required } from '@/utils';
-import { showSuccessToast } from '@/lib/toast';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
 
@@ -24,20 +23,15 @@ export const SignUpScreen = ({ navigation }: Props) => {
   const { isLoading, signUpWithEmail } = useAuth();
 
   const form = useForm({
-    name: {
-      value: '',
-      validators: [required('Enter Name')],
-    },
     email: {
       value: '',
-      validators: [required('Email Required'), email()],
+      validators: [required(appTexts.EMAIL_REQUIRED), email()],
     },
     password: {
       value: '',
-      validators: [required('Password Required'), minLength(6)],
+      validators: [required(appTexts.PASSWORD_REQUIRED), minLength(6)],
     },
   });
-  const nameField = useField(form, 'name');
   const emailField = useField(form, 'email');
   const passwordField = useField(form, 'password');
 
@@ -59,7 +53,6 @@ export const SignUpScreen = ({ navigation }: Props) => {
       try {
         const res = await signUpWithEmail(values.email, values.password);
         if (res) {
-          showSuccessToast('Account created successfully');
           navigateBack();
         }
       } catch (error) {
@@ -86,14 +79,8 @@ export const SignUpScreen = ({ navigation }: Props) => {
         <View style={styles.formContainer}>
           <View style={styles.inputContainers}>
             <AppInput
-              label="Full Name"
-              value={nameField.value}
-              onChangeText={nameField.onChangeText}
-              onBlur={nameField.onBlur}
-              error={nameField.error}
-            />
-            <AppInput
               label="Email"
+              autoCapitalize="none"
               value={emailField.value}
               onChangeText={emailField.onChangeText}
               onBlur={emailField.onBlur}
@@ -102,6 +89,7 @@ export const SignUpScreen = ({ navigation }: Props) => {
             <AppInput
               label="Password"
               isPassword
+              autoCapitalize="none"
               value={passwordField.value}
               onChangeText={passwordField.onChangeText}
               onBlur={passwordField.onBlur}
@@ -178,7 +166,7 @@ const styles = StyleSheet.create({
   },
   forgotPassword: {
     fontSize: 12,
-    color: '#4D81E7',
+    color: appColors.app_4D81E7,
     alignSelf: 'flex-end',
     fontWeight: 'semibold',
   },

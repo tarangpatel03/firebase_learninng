@@ -1,5 +1,5 @@
 import { setToastBottomInset, toastConfig } from '@/lib/toast';
-import { RootNavigation } from '@/navigation';
+import { navigationRef, RootNavigation } from '@/navigation';
 import { NavigationContainer } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
@@ -26,7 +26,7 @@ function App() {
     <SafeAreaProvider>
       <ToastInsetSync />
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <RootNavigation />
         <Toast config={toastConfig} />
       </NavigationContainer>

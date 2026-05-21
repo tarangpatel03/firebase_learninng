@@ -6,7 +6,7 @@ import {
   GlobalLoader,
   PrimaryButton,
 } from '@/components';
-import { appRoutes, authRoutes } from '@/configs';
+import { appRoutes, authRoutes, isIOS } from '@/configs';
 import { appTexts } from '@/constants';
 import { useAuth, useField, useForm } from '@/hooks';
 import { showSuccessToast } from '@/lib/toast';
@@ -71,6 +71,10 @@ export const LoginScreen = ({ navigation }: Props) => {
     navigation.navigate(authRoutes.SIGN_UP);
   };
 
+  const navigateToForgotPassword = () => {
+    navigation.navigate(authRoutes.FORGOT_PASSWORD);
+  };
+
   return (
     <AppScreen>
       {isLoading && <GlobalLoader />}
@@ -98,7 +102,10 @@ export const LoginScreen = ({ navigation }: Props) => {
               onBlur={passwordField.onBlur}
               error={passwordField.error}
             />
-            <AppText style={styles.forgotPassword}>
+            <AppText
+              style={styles.forgotPassword}
+              onPress={navigateToForgotPassword}
+            >
               {appTexts.FORGOT_PASSWORD}
             </AppText>
           </View>
@@ -119,12 +126,14 @@ export const LoginScreen = ({ navigation }: Props) => {
               leftIcon={appAssets.icons.ic_google}
               buttonText={appTexts.CONTINUE_WITH_GOOGLE}
             />
-            <PrimaryButton
-              textStyle={styles.socialText}
-              leftIcon={appAssets.icons.ic_apple}
-              containerStyle={styles.socialButton}
-              buttonText={appTexts.CONTINUE_WITH_APPLE}
-            />
+            {isIOS && (
+              <PrimaryButton
+                textStyle={styles.socialText}
+                leftIcon={appAssets.icons.ic_apple}
+                containerStyle={styles.socialButton}
+                buttonText={appTexts.CONTINUE_WITH_APPLE}
+              />
+            )}
           </View>
         </View>
       </View>

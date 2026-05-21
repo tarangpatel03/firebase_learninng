@@ -3,6 +3,9 @@ export const appTexts = {
   LOG_IN: 'Log in',
   OR: 'OR',
   FORGOT_PASSWORD: 'Forgot Password?',
+  FORGOT_PASSWORD_TITLE: 'Forgot Password',
+  FORGOT_PASSWORD_DESC:
+    'Enter your email address and we will send you a password reset link.',
   LOG_IN_TITLE: 'Sign in to your Account',
   REGISTER: 'Register',
   LOG_IN_DESC: 'Enter your email and password to log in',
@@ -20,6 +23,8 @@ export const appTexts = {
   PASSWORD_REQUIRED: 'Password Required',
   ENTER_NAME: 'Please enter your name',
   LOG_IN_SUCCESS: 'Logged in successfully',
+  SEND_RESET_LINK: 'Send Reset Link',
+  PASSWORD_RESET_EMAIL_SENT: 'Password reset link sent to your email.',
   YOUR_TASKS: 'Your Tasks',
   ADD_TASK: 'Add Task',
   EDIT_TASK: 'Edit Task',

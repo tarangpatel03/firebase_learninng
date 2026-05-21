@@ -110,6 +110,20 @@ export const useAuth = () => {
     }
   }, []);
 
+  const forgotPassword = useCallback(async (email: string) => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true }));
+
+      await auth().sendPasswordResetEmail(email.trim());
+      showSuccessToast(appTexts.PASSWORD_RESET_EMAIL_SENT);
+      return true;
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setState(prev => ({ ...prev, isLoading: false }));
+    }
+  }, []);
+
   return {
     user: state.user,
     isLoading: state.isLoading,
@@ -117,5 +131,6 @@ export const useAuth = () => {
     signUpWithEmail,
     signInWithEmail,
     signOut,
+    forgotPassword,
   };
 };

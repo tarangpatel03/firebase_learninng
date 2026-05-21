@@ -16,6 +16,7 @@ import { useCallback } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useAuth, useField, useForm } from '@/hooks';
 import { email, minLength, required } from '@/utils';
+import { isIOS } from '@/configs';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
 
@@ -113,12 +114,14 @@ export const SignUpScreen = ({ navigation }: Props) => {
               leftIcon={appAssets.icons.ic_google}
               buttonText={appTexts.CONTINUE_WITH_GOOGLE}
             />
-            <PrimaryButton
-              textStyle={styles.socialText}
-              leftIcon={appAssets.icons.ic_apple}
-              containerStyle={styles.socialButton}
-              buttonText={appTexts.CONTINUE_WITH_APPLE}
-            />
+            {isIOS && (
+              <PrimaryButton
+                textStyle={styles.socialText}
+                leftIcon={appAssets.icons.ic_apple}
+                containerStyle={styles.socialButton}
+                buttonText={appTexts.CONTINUE_WITH_APPLE}
+              />
+            )}
           </View>
         </View>
       </View>

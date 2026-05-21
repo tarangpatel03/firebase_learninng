@@ -7,6 +7,7 @@ export const appColors = {
   app_6C7278: '#6C7278',
   app_DC2828: '#DC2828',
   app_4D81E7: '#4D81E7',
+  app_00000080: '#00000080',
   input: {
     text: '#000000',
     placeholder: '#8E8E93',

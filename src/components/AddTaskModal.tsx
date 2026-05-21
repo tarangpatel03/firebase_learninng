@@ -95,7 +95,7 @@ export const AddTaskModal = (props: AddTaskProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: appColors.app_00000080,
     justifyContent: 'center',
     alignItems: 'center',
   },

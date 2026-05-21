@@ -1,8 +1,15 @@
-import { useEffect, useState } from 'react';
-import { AddTaskModal, AppScreen, AppText } from '@/components';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  AddTaskModal,
+  AppScreen,
+  AppText,
+  LogoutConfirmationModal,
+  TaskFilterModal,
+  TaskFilterType,
+} from '@/components';
 import { RootStackParamList } from '@/types/navigation.types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useUserStore } from '@/store/useUserStore';
 import firestore from '@react-native-firebase/firestore';
 import { firebaseCollections } from '@/configs';
@@ -11,6 +18,8 @@ import { appAssets } from '@/assets';
 import { appColors } from '@/theme';
 import { TaskComponentProps, TaskDocument } from '@/types/task.type';
 import { deleteTask, updateTask } from '@/services';
+import { useAuth } from '@/hooks';
+import FastImage from '@d11/react-native-fast-image';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -19,6 +28,10 @@ export const HomeScreen = ({}: Props) => {
   const [tasks, setTasks] = useState<TaskDocument[]>([]);
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<TaskFilterType>('all');
+  const { signOut } = useAuth();
 
   useEffect(() => {
     if (!uid) {
@@ -41,7 +54,12 @@ export const HomeScreen = ({}: Props) => {
           } as TaskDocument;
         });
 
-        setTasks(list);
+        const completedTasks = list.filter(task => task.is_completed);
+        const notCompletedTasks = list.filter(task => !task.is_completed);
+
+        const sortedList = [...notCompletedTasks, ...completedTasks];
+
+        setTasks(sortedList);
       });
 
     return unsubscribe;
@@ -62,6 +80,23 @@ export const HomeScreen = ({}: Props) => {
 
     setSelectedTask(null);
   };
+
+  const onLogoutConfirm = async () => {
+    setIsLogoutModalOpen(false);
+    await signOut();
+  };
+
+  const filteredTasks = useMemo(() => {
+    if (selectedFilter === 'completed') {
+      return tasks.filter(task => task.is_completed);
+    }
+
+    if (selectedFilter === 'not_completed') {
+      return tasks.filter(task => !task.is_completed);
+    }
+
+    return tasks;
+  }, [selectedFilter, tasks]);
 
   const renderItem = ({ item }: { item: TaskDocument }) => {
     return (
@@ -85,23 +120,40 @@ export const HomeScreen = ({}: Props) => {
         isOpen={isAddTaskModalOpen}
         closeModal={onCloseModal}
       />
+      <LogoutConfirmationModal
+        isOpen={isLogoutModalOpen}
+        closeModal={setIsLogoutModalOpen.bind(null, false)}
+        onConfirm={onLogoutConfirm}
+      />
+      <TaskFilterModal
+        isOpen={isFilterModalOpen}
+        selectedFilter={selectedFilter}
+        closeModal={setIsFilterModalOpen.bind(null, false)}
+        onSelectFilter={setSelectedFilter}
+      />
       <View style={styles.container}>
         <View style={styles.taskContainer}>
           <AppText style={styles.title}>{appTexts.YOUR_TASKS}</AppText>
           <View style={styles.taskInnerContainer}>
-            <Pressable>
-              <Image source={appAssets.icons.ic_filter} style={styles.icons} />
+            <Pressable onPress={setIsFilterModalOpen.bind(null, true)}>
+              <FastImage
+                source={appAssets.icons.ic_filter}
+                style={styles.icons}
+              />
             </Pressable>
             <Pressable onPress={setIsAddTaskModalOpen.bind(null, true)}>
-              <Image source={appAssets.icons.ic_add} style={styles.icons} />
+              <FastImage source={appAssets.icons.ic_add} style={styles.icons} />
             </Pressable>
-            <Pressable>
-              <Image source={appAssets.icons.ic_logout} style={styles.icons} />
+            <Pressable onPress={setIsLogoutModalOpen.bind(null, true)}>
+              <FastImage
+                source={appAssets.icons.ic_logout}
+                style={styles.icons}
+              />
             </Pressable>
           </View>
         </View>
         <FlatList
-          data={tasks}
+          data={filteredTasks}
           renderItem={renderItem}
           ItemSeparatorComponent={<View style={styles.listSeparator} />}
           keyExtractor={item => item.id}
@@ -139,13 +191,6 @@ const styles = StyleSheet.create({
   tick: {
     width: 15,
     height: 12,
-    tintColor: appColors.white,
-  },
-  editIcon: {
-    tintColor: appColors.app_4D81E7,
-  },
-  deleteIcon: {
-    tintColor: appColors.app_DC2828,
   },
   todoBox: {
     width: 26,
@@ -191,7 +236,11 @@ const TaskComponent = ({
           ]}
         >
           {item.is_completed && (
-            <Image source={appAssets.icons.ic_check} style={styles.tick} />
+            <FastImage
+              source={appAssets.icons.ic_check}
+              tintColor={appColors.white}
+              style={styles.tick}
+            />
           )}
         </View>
         <AppText style={item.is_completed ? styles.completedTask : styles.task}>
@@ -200,15 +249,17 @@ const TaskComponent = ({
       </Pressable>
       <View style={styles.taskInnerContainer}>
         <Pressable onPress={onEditPress.bind(null, item.id)}>
-          <Image
+          <FastImage
             source={appAssets.icons.ic_edit}
-            style={[styles.icons, styles.editIcon]}
+            tintColor={appColors.app_4D81E7}
+            style={styles.icons}
           />
         </Pressable>
         <Pressable onPress={onDeletePress.bind(null, item.id)}>
-          <Image
+          <FastImage
             source={appAssets.icons.ic_delete}
-            style={[styles.icons, styles.deleteIcon]}
+            tintColor={appColors.app_DC2828}
+            style={styles.icons}
           />
         </Pressable>
       </View>

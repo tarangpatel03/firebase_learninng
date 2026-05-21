@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: appColors.app_00000080,
   },
   activityIndicatorWrapper: {
     backgroundColor: appColors.white,
